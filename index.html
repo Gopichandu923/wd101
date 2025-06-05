@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registration Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>Registration Form</h1>
+  <form id="registration-form">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <label for="dob">Date of Birth:</label><br>
+    <input type="date" id="dob" name="dob" required><br><br>
+
+    <label>
+      <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+      Accept Terms and Conditions
+    </label><br><br>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <table id="user-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Dob</th>
+        <th>Accepted terms?</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Load existing users from localStorage on page load
+    window.onload = function() {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      users.forEach(addUserToTable);
+    };
+
+    // Handle form submission
+    document.getElementById('registration-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const dob = document.getElementById('dob').value;
+      const acceptTerms = document.getElementById('acceptTerms').checked;
+
+      // Validate age
+      const dobDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - dobDate.getFullYear();
+      const monthDiff = today.getMonth() - dobDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+      }
+
+      if (age < 18 || age > 55) {
+        alert('Your age must be between 18 and 55 years.');
+        return;
+      }
+
+      const user = { name, email, password, dob, acceptTerms };
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+      users.push(user);
+      localStorage.setItem('users', JSON.stringify(users));
+
+      addUserToTable(user);
+
+      // Clear form
+      document.getElementById('registration-form').reset();
+    });
+
+    function addUserToTable(user) {
+      const tableBody = document.querySelector('#user-table tbody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.name}</td>
+        <td>${user.email}</td>
+        <td>${user.password}</td>
+        <td>${user.dob}</td>
+        <td>${user.acceptTerms}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+  </script>
+</body>
+</html>
